@@ -433,12 +433,27 @@ def generate_image(
             images = []
 
             for image in res["data"]:
-                image_filename = save_b64_image(image["b64_json"])
-                images.append({"url": f"/cache/image/generations/{image_filename}"})
-                file_body_path = IMAGE_CACHE_DIR.joinpath(f"{image_filename}.json")
+                if image["url"] is not None:
 
-                with open(file_body_path, "w") as f:
-                    json.dump(data, f)
+                    image_filename = save_url_image(image["url"])
+                    images.append({"url": f"/cache/image/generations/{image_filename}"})
+                    file_body_path = IMAGE_CACHE_DIR.joinpath(f"{image_filename}.json")
+
+                    with open(file_body_path, "w") as f:
+                        json.dump(data, f)
+
+                elif image["b64_json"] is not None: 
+                    
+                    image_filename = save_b64_image(image["b64_json"])
+                    images.append({"url": f"/cache/image/generations/{image_filename}"})
+                    file_body_path = IMAGE_CACHE_DIR.joinpath(f"{image_filename}.json")
+    
+                    with open(file_body_path, "w") as f:
+                        json.dump(data, f)
+
+                else:
+
+                    raise Exception("Invalid image generation response")
 
             return images
 
